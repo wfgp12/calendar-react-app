@@ -3,7 +3,6 @@
 import PropTypes from 'prop-types';
 
 export const CalendarEvent = ({ event }) => {
-    console.log(event)
 
     const { title, user } = event;
     return (
@@ -16,7 +15,7 @@ export const CalendarEvent = ({ event }) => {
 
 CalendarEvent.propTypes = {
     event: PropTypes.shape({
-        title: PropTypes.string.isRequired,
+        title: PropTypes.string,
         user: PropTypes.shape({
             name: PropTypes.string,
         })
