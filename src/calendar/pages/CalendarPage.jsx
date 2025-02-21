@@ -3,7 +3,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import { addHours } from 'date-fns';
 
-import { CalendarEvent, Navbar } from "../components";
+import { CalendarEvent, CalendarModal, Navbar } from "../components";
 import { localizer, getMessagesES } from "../../helpers";
 import { useState } from 'react';
 
@@ -22,7 +22,7 @@ const myEventsList = [
 
 
 export const CalendarPage = () => {
-   const [lastView, setLastView] = useState(localStorage.getItem('lastView') || 'month');
+   const [lastView] = useState(localStorage.getItem('lastView') || 'month');
   const eventStyleGetter = () => {
     return {
       style: {
@@ -65,6 +65,8 @@ export const CalendarPage = () => {
         onSelectEvent={onSelect}
         onView={onViewChanged}
       />
+
+      <CalendarModal />
     </>
   )
 }
