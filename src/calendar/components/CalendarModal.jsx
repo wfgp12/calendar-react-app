@@ -72,7 +72,7 @@ export const CalendarModal = () => {
 
     return (
         <Modal
-            isOpen={true}
+            isOpen={false}
             onRequestClose={onCLoseModal}
             style={customStyles}
             className="modal"
