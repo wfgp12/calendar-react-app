@@ -7,9 +7,9 @@ import { useEffect } from "react";
 
 export const AppRouter = () => {
 
-    const { status, startCheckAuth } = useAuthStore();
+    const { status, startRenewToken } = useAuthStore();
     useEffect(() => {
-        startCheckAuth();
+        startRenewToken();
     }, [])
 
 

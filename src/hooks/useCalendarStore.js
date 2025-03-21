@@ -1,27 +1,58 @@
 import { useDispatch, useSelector } from "react-redux";
-import { onAddNewEvent, onDeleteEvent, onSetActiveEvent, onUpdateEvent } from "../store";
+import { onAddNewEvent, onDeleteEvent, onLoadEvents, onSetActiveEvent, onUpdateEvent } from "../store";
+import { calendarApi } from "../api";
+import { convertEventsToDateEvents } from "../helpers";
+import Swal from "sweetalert2";
 
 export const useCalendarStore = () => {
     const {
         events,
         activeEvent,
     } = useSelector((state) => state.calendar);
+    const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
     const setActiveEvent = (event) => {
         dispatch(onSetActiveEvent(event))
     }
 
-    const startSavingEvent = async(calendarEvent) => {
-        if (calendarEvent._id) {
-            dispatch(onUpdateEvent(calendarEvent))
-        }else {
-            dispatch(onAddNewEvent({...calendarEvent, _id: new Date().getTime()}))
+    const startSavingEvent = async (calendarEvent) => {
+        try {
+            if (calendarEvent.uid) {
+                await calendarApi.put(`/events/${calendarEvent.uid}`, calendarEvent);
+                dispatch(onUpdateEvent({ ...calendarEvent, user }))
+                return
+            }
+            const { data } = await calendarApi.post('/events', calendarEvent);
+            dispatch(onAddNewEvent({ ...calendarEvent, uid: data.event.uid, user }))
+        } catch (error) {
+            console.log(error);
+            Swal.fire('Error al guardar', error.response.data.msg, 'error');
         }
     }
 
-    const deleteEvent = () => {
-        dispatch(onDeleteEvent())
+    const startLoadingEvents = async () => {
+
+        try {
+            const { data } = await calendarApi.get('/events');
+            const events = convertEventsToDateEvents(data.events);
+
+            dispatch(onLoadEvents(events));
+        }
+        catch (error) {
+            console.log(error);
+            Swal.fire('Error', error.response.data.msg, 'error');
+        }
+    }
+
+    const deleteEvent = async () => {
+        try {
+            await calendarApi.delete(`/events/${activeEvent.uid}`);
+            dispatch(onDeleteEvent())
+        } catch (error) {
+            console.log(error);
+            Swal.fire('Error', error.response.data.msg, 'error');
+        }
     }
 
 
@@ -30,8 +61,9 @@ export const useCalendarStore = () => {
         events,
         activeEvent,
         //Methods
+        deleteEvent,
         setActiveEvent,
+        startLoadingEvents,
         startSavingEvent,
-        deleteEvent
     };
 };

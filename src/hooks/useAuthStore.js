@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { calendarApi } from "../api";
-import { checkAuth, clearErrorMessage, onLogin, onLogout } from "../store";
+import { checkAuth, clearErrorMessage, onClearEvents, onLogin, onLogout } from "../store";
 
 export const useAuthStore = () => {
     const { status, user, errorMessage } = useSelector((state) => state.auth);
@@ -49,7 +49,7 @@ export const useAuthStore = () => {
         if (!token) return dispatch(onLogout('Token expired'));
 
         try {
-            const { data } = await calendarApi.post('/auth/renew');
+            const { data } = await calendarApi.get('/auth/renew');
             localStorage.setItem('token', data.token);
             localStorage.setItem('token-init-date', new Date().getTime());
 
@@ -63,6 +63,7 @@ export const useAuthStore = () => {
     const startLogout = () => {
         localStorage.clear;
         dispatch(onLogout(""));
+        dispatch(onClearEvents());
     }
 
     return {
