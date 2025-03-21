@@ -19,7 +19,15 @@ export const authSlice = createSlice({
             state.user = payload;
             state.errorMessage = '';
         },
+        onLogout: (state, {payload}) => {
+            state.status = 'not-authenticated';
+            state.user = {};
+            state.errorMessage = payload;
+        },
+        clearErrorMessage: (state) => {
+            state.errorMessage = undefined;
+        },
     },
 });
 
-export const { checkAuth, onLogin } = authSlice.actions;
+export const { checkAuth, onLogin, onLogout, clearErrorMessage } = authSlice.actions;

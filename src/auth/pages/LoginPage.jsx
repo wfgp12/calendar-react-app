@@ -1,6 +1,8 @@
 
-import { useForm } from '../../hooks'
+import { useEffect } from 'react'
+import { useAuthStore, useForm } from '../../hooks'
 import './LoginPage.css'
+import Swal from 'sweetalert2'
 
 const loginFormFields = {
     loginEmail:"",
@@ -15,6 +17,7 @@ const registerFormFields = {
 }
 
 export const LoginPage = () => {
+    const { status, startLogin, startRegister, errorMessage } = useAuthStore();
 
     const {loginEmail, loginPassword, onInputChange: onLoginInputChange} = useForm( loginFormFields );
     const { registerEmail, registerPassword, registerPassword2, registerName, onInputChange: onRegisterInputChange } = useForm( registerFormFields );
@@ -22,13 +25,33 @@ export const LoginPage = () => {
 
     const onLoginSubmit = (e) => {
         e.preventDefault();
-        console.log(loginEmail, loginPassword);
+        startLogin({email: loginEmail, password: loginPassword});
     }
 
     const onRegisterSubmit = (e) => {
         e.preventDefault();
-        console.log(registerEmail, registerPassword, registerPassword2, registerName);
+        if (registerPassword !== registerPassword2) {
+            Swal.fire({
+                title: 'Error de registro',
+                text: 'Las contraseñas no coinciden',
+                icon: 'error'
+            })
+            return;
+        }
+        startRegister({name: registerName, email: registerEmail, password: registerPassword});
     }
+
+    useEffect(() => {
+        if (errorMessage !== "") {
+            Swal.fire({
+                title: 'Error de autenticación',
+                text: errorMessage,
+                icon: 'error',
+                confirmButtonText: 'OK',
+            })
+        }
+    }, [errorMessage])
+    
 
     return (
         <div className="container login-container">
@@ -61,6 +84,7 @@ export const LoginPage = () => {
                                 type="submit"
                                 className="btnSubmit"
                                 value="Login" 
+                                disabled={status === 'checking'}
                             />
                         </div>
                     </form>
@@ -115,7 +139,9 @@ export const LoginPage = () => {
                             <input 
                                 type="submit" 
                                 className="btnSubmit" 
-                                value="Crear cuenta" />
+                                value="Crear cuenta" 
+                                disabled={status === 'checking'}
+                            />
                         </div>
                     </form>
                 </div>
